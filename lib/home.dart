@@ -1,5 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:developer';
+
 import 'package:exp_design/common_colors.dart';
 import 'package:exp_design/render_state.dart';
 import 'package:exp_design/renderer_cubit.dart';
@@ -104,28 +106,39 @@ class _HomeState extends State<Home> {
         height: dimension.h,
         padding: const EdgeInsets.all(10),
         duration: const Duration(milliseconds: 500),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: color,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              IconButton(
-                  onPressed: () {
-                    rendererCubit.renderNewState(
-                      componentID,
-                      !isExpanded,
-                    );
-                  },
-                  icon: Icon(
-                    isExpanded ? Icons.close_fullscreen : Icons.open_in_full,
-                    color: Colors.white,
-                  )),
-            ],
-          ),
-        ),
+        child: componentID == 0
+            ? GestureDetector(
+                onPanUpdate: (details) =>
+                    rendererCubit.dragComponents(details.delta.dx),
+                onPanEnd: (details) => rendererCubit.onDragEnd(),
+                child: _componentChild(color, componentID, isExpanded),
+              )
+            : _componentChild(color, componentID, isExpanded),
+      ),
+    );
+  }
+
+  Container _componentChild(Color color, int componentID, bool isExpanded) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: color,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          IconButton(
+              onPressed: () {
+                rendererCubit.renderNewState(
+                  componentID,
+                  !isExpanded,
+                );
+              },
+              icon: Icon(
+                isExpanded ? Icons.close_fullscreen : Icons.open_in_full,
+                color: Colors.white,
+              )),
+        ],
       ),
     );
   }
