@@ -81,7 +81,7 @@ class RendererCubit extends Cubit<RenderState> {
   void _update_cs2(bool shouldExpand) {
     List<ComponentState> componentStates = (state as Rendered).componentState;
     if (shouldExpand) {
-      if (componentStates[0].isExpanded) {
+      if (!componentStates[0].isExpanded) {
         _update_cs1(true);
       }
       _swap(componentStates, 1, 2);
