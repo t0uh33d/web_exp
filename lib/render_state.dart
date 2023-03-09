@@ -8,15 +8,37 @@ class Rendered extends RenderState {
   Rendered({
     required this.componentState,
   });
+
+  Rendered copyWith({
+    List<ComponentState>? componentState,
+  }) {
+    return Rendered(
+      componentState: componentState ?? this.componentState,
+    );
+  }
 }
 
 class ComponentState {
   final Position position;
   final Dimension dimension;
+  final bool isExpanded;
   ComponentState({
     required this.position,
     required this.dimension,
+    required this.isExpanded,
   });
+
+  ComponentState copyWith({
+    Position? position,
+    Dimension? dimension,
+    bool? isExpanded,
+  }) {
+    return ComponentState(
+      position: position ?? this.position,
+      dimension: dimension ?? this.dimension,
+      isExpanded: isExpanded ?? this.isExpanded,
+    );
+  }
 }
 
 class Position {

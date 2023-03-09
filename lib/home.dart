@@ -5,6 +5,7 @@ import 'package:exp_design/render_state.dart';
 import 'package:exp_design/renderer_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_cubit/get_cubit.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -14,32 +15,12 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  // component heights
-  double c1_h = 100;
-  double c2_h = 100;
-  double c3_h = 100;
-  double c4_h = 100;
+  final RendererCubit rendererCubit = GetCubit.find<RendererCubit>();
 
-  // component widths
-  double c1_w = 100;
-  double c2_w = 100;
-  double c3_w = 100;
-  double c4_w = 100;
-
-  // position
-  double c1_p = 0;
-  double c2_p = 100;
-
-  void changePosition() {
-    setState(() {
-      double tmp = c1_p;
-      c1_p = c2_p;
-      c2_p = tmp;
-      isExpanded = !isExpanded;
-    });
+  @override
+  void initState() {
+    super.initState();
   }
-
-  bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -48,11 +29,12 @@ class _HomeState extends State<Home> {
         appBar: _appBar(),
         body: Row(
           children: [
-            _sideBar(),
+            if (size.width > 600) _sideBar(),
             Expanded(child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
                 double mh = constraints.maxHeight;
                 double mw = constraints.maxWidth;
+                rendererCubit.startRendering(Dimension(mw, mh));
                 return SizedBox(
                   height: mh,
                   width: mw,
@@ -60,7 +42,36 @@ class _HomeState extends State<Home> {
                     builder: (context, state) {
                       if (state is Rendered) {
                         return Stack(
-                          children: [],
+                          children: [
+                            component(
+                              position: state.componentState[0].position,
+                              dimension: state.componentState[0].dimension,
+                              color: CommonColors.quizWrongOptionColor,
+                              componentID: 0,
+                              isExpanded: state.componentState[0].isExpanded,
+                            ),
+                            component(
+                              position: state.componentState[1].position,
+                              dimension: state.componentState[1].dimension,
+                              color: CommonColors.purpleDarkForegroundColor,
+                              componentID: 1,
+                              isExpanded: state.componentState[1].isExpanded,
+                            ),
+                            component(
+                              position: state.componentState[2].position,
+                              dimension: state.componentState[2].dimension,
+                              color: CommonColors.menuIconColor,
+                              componentID: 2,
+                              isExpanded: state.componentState[2].isExpanded,
+                            ),
+                            component(
+                              position: state.componentState[3].position,
+                              dimension: state.componentState[3].dimension,
+                              color: CommonColors.darkGreenTextColor,
+                              componentID: 3,
+                              isExpanded: state.componentState[3].isExpanded,
+                            ),
+                          ],
                         );
                       }
                       return const Center(
@@ -77,7 +88,13 @@ class _HomeState extends State<Home> {
         ));
   }
 
-  Widget component(Position position, Dimension dimension, Color color) {
+  Widget component({
+    required Position position,
+    required Dimension dimension,
+    required Color color,
+    required int componentID,
+    required bool isExpanded,
+  }) {
     return AnimatedPositioned(
       top: position.y,
       left: position.x,
@@ -87,19 +104,37 @@ class _HomeState extends State<Home> {
         height: dimension.h,
         padding: const EdgeInsets.all(10),
         duration: const Duration(milliseconds: 500),
-        child: Container(color: color),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: color,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              IconButton(
+                  onPressed: () {
+                    rendererCubit.renderNewState(
+                      componentID,
+                      !isExpanded,
+                    );
+                  },
+                  icon: Icon(
+                    isExpanded ? Icons.close_fullscreen : Icons.open_in_full,
+                    color: Colors.white,
+                  )),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget _sideBar() {
-    return InkWell(
-      onTap: changePosition,
-      child: Container(
-        color: CommonColors.primaryLightColor,
-        height: double.infinity,
-        width: 300,
-      ),
+    return Container(
+      color: CommonColors.primaryLightColor,
+      height: double.infinity,
+      width: 300,
     );
   }
 
